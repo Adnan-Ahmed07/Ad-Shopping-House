@@ -10,7 +10,8 @@
     "build": "tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "std": "powershell -ExecutionPolicy Bypass -File ../start-database.ps1 -Studio"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

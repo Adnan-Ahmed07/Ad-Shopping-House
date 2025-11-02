@@ -1,11 +1,14 @@
 param(
-    [switch]$Migrate
+    [switch]$Migrate,
+    [switch]$Studio
 )
 
 # start-database.ps1
 # Usage:
-#  .\start-database.ps1          # starts Docker Desktop (if needed) and brings up docker compose stack
-#  .\start-database.ps1 -Migrate # also runs prisma migrate deploy and prisma generate in backend
+#  .\start-database.ps1                    # starts Docker Desktop (if needed) and brings up docker compose stack
+#  .\start-database.ps1 -Migrate          # also runs prisma migrate deploy and prisma generate in backend
+#  .\start-database.ps1 -Studio           # starts database and opens Prisma Studio
+#  .\start-database.ps1 -Migrate -Studio  # does all of the above
 
 function Start-DockerDesktopIfNeeded {
     if (-not (Get-Process -Name 'Docker Desktop' -ErrorAction SilentlyContinue)) {
@@ -95,6 +98,19 @@ Write-Host 'Database stack is up and Postgres is ready.' -ForegroundColor Green
 if ($Migrate) {
     Run-Prisma-Deploy
     Write-Host 'Migrations applied and Prisma client generated.' -ForegroundColor Green
+}
+
+if ($Studio) {
+    Write-Host 'Opening Prisma Studio...'
+    Push-Location backend
+    try {
+        # Set DATABASE_URL from .env file
+        $env:DATABASE_URL = "postgresql://adnan:password@localhost:5436/adshoppinghouse"
+        Start-Process "http://localhost:5555" # Open browser to Prisma Studio
+        npx prisma studio
+    } finally {
+        Pop-Location
+    }
 }
 
 Write-Host 'Done.'
