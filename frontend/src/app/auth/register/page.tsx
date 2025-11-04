@@ -10,6 +10,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { protectSignUpAction } from "@/actions/auth";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 const Registerpage = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +20,8 @@ const Registerpage = () => {
     password: "",
   });
   const { toast } = useToast();
+  const { register, isLoading } = useAuthStore();
+  const router = useRouter();
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -37,6 +41,18 @@ const Registerpage = () => {
         variant: "destructive",
       });
       return;
+    }
+
+    const userId = await register(
+      formData.name,
+      formData.email,
+      formData.password
+    );
+    if (userId) {
+      toast({
+        title: "Registration Successfull!",
+      });
+      router.push("/auth/login");
     }
   };
 
@@ -104,23 +120,33 @@ const Registerpage = () => {
               />
             </div>
 
-            {/* Animated Button */}
             <Button
               type="submit"
-              className="w-full bg-black text-white relative overflow-hidden group transition-all duration-500 ease-out hover:shadow-2xl hover:shadow-purple-500/30 transform hover:scale-[1.02] border-2 border-transparent hover:border-purple-500/50"
+              disabled={isLoading}
+              className="w-full bg-black text-white relative overflow-hidden group transition-all duration-500 ease-out hover:shadow-2xl hover:shadow-purple-500/30 transform hover:scale-[1.02] border-2 border-transparent hover:border-purple-500/50 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none **cursor-pointer**"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
-                CREATE ACCOUNT
-                <span className="group-hover:translate-x-1 transition-transform duration-300">
-                  →
-                </span>
+                {isLoading ? (
+                  "Creating Account..."
+                ) : (
+                  <>
+                    CREATE ACCOUNT
+                    <span className="group-hover:translate-x-1 transition-transform duration-300">
+                      →
+                    </span>
+                  </>
+                )}
               </span>
 
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
+              {/* Gradient overlay - only show when not loading */}
+              {!isLoading && (
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
+              )}
 
-              {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+              {/* Shine effect - only show when not loading */}
+              {!isLoading && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out"></div>
+              )}
             </Button>
 
             <p className="text-center text-[#3f3d56] text-sm">
