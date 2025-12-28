@@ -1,6 +1,8 @@
 import arcjet, {
+  detectBot,
   fixedWindow,
   protectSignup,
+  shield,
   validateEmail,
 } from "@arcjet/next";
 export const protectSignupRules = arcjet({
@@ -34,6 +36,23 @@ export const protectLoginRules = arcjet({
       mode: "LIVE",
       window: "60s",
       max: 3,
+    }),
+  ],
+});
+export const createNewProductRules = arcjet({
+  key: process.env.ARCJET_KEY!,
+  rules: [
+    detectBot({
+      mode: "LIVE",
+      allow: [],
+    }),
+    fixedWindow({
+      mode: "LIVE",
+      window: "300s",
+      max: 5,
+    }),
+    shield({
+      mode: "LIVE",
     }),
   ],
 });

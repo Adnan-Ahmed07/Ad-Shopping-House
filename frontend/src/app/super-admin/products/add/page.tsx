@@ -1,5 +1,6 @@
 "use client";
 
+import { protectProductFormAction } from "@/actions/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { useProductStore } from "@/store/useProductStore";
 import { Upload } from "lucide-react";
 import Image from "next/image";
@@ -51,7 +53,7 @@ const SuperAdminManageProductPage = () => {
   const [selectedSizes, setSelectSizes] = useState<string[]>([]);
   const [selectedColors, setSelectColors] = useState<string[]>([]);
   const [selectedfiles, setSelectFiles] = useState<File[]>([]);
-
+  const { toast } = useToast();
   const router = useRouter();
   const { createProduct, updateProduct, getProductById, isLoading, error } =
     useProductStore();
@@ -91,6 +93,13 @@ const SuperAdminManageProductPage = () => {
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const checkFirstLevelFormSanitization = await protectProductFormAction();
+    if (!checkFirstLevelFormSanitization.success) {
+      toast({
+        title: checkFirstLevelFormSanitization.error,
+      });
+      return;
+    }
     const formData = new FormData();
     Object.entries(formState).forEach(([Key, value]) => {
       formData.append(Key, value);
